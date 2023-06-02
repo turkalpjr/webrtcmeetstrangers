@@ -14,10 +14,22 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+
+let connectedPeers = [];
+
+
 io.on('connection', (socket) => {
-    console.log('user connected to socket.io server');
-    console.log("SOCKET ID:--->"+socket.id);
-})
+    connectedPeers.push(socket.id);
+    console.log("CONNECTED PEERS (1)" + connectedPeers);
+    socket.on('disconnect', () => {
+        console.log("user disconnected");
+        const newConnectedPeers = connectedPeers.filter((peerSocketId) => {
+            peerSocketId !== socket.io;
+        });
+        connectedPeers = newConnectedPeers;
+        console.log("CONNECTED PEERS (2)" + connectedPeers);
+    });
+});
 
 server.listen(PORT, () => {
     console.log(`listening on ${PORT}`);
