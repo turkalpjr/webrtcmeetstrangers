@@ -1,10 +1,18 @@
+import * as store from './store.js';
+import *  as wss from './wss.js';
+
+
+//initialization  of socket IO connection
 const socket = io('/');
+wss.registerSocketEvents(socket);
 
-socket.on('connect', () => {
-    console.log('successfully connected to socket.io server (2)');
-    console.log("SOCKET ID (2):--->"+socket.id);
-});
+//register event for personal code copy button
 
 
+const personalCodeCopyButton = document.getElementById('personal_code_copy_button');
 
+personalCodeCopyButton.addEventListener('click', () => {
+    const personalCode = store.getState().socketId;
+    navigator.clipboard && navigator.clipboard.writeText(personalCode);
+})
 
