@@ -14,13 +14,32 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-
 let connectedPeers = [];
-
 
 io.on('connection', (socket) => {
     connectedPeers.push(socket.id);
     console.log("CONNECTED PEERS (1)" + connectedPeers);
+
+    socket.on('pre-offer', (data) => {
+        console.log('pre-offer-came');
+
+        const { calleePersonalCode, callType } = data;
+        const connectedPeer = connectedPeers.find((peerSocketId) => {
+            peerSocketId === calleePersonalCode;
+        });
+        
+        console.log(connectedPeer);
+
+        if (connectedPeer) {
+            const data = {
+                callerSocketId: socket.id,
+                callType,
+            };
+
+            io.to(calleePersonalCode).emit('pre-offer', data);
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log("user disconnected");
         const newConnectedPeers = connectedPeers.filter((peerSocketId) => {
