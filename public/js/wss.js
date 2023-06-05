@@ -13,7 +13,6 @@ export const registerSocketEvents = (socket) => {
     });
 
     socket.on('pre-offer', (data) => {
-        console.log('pre offer came');
         webRTCHandler.handlePreOffer(data);
     })
 }
