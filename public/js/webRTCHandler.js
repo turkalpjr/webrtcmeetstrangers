@@ -7,10 +7,9 @@ export const sendPreOffer = (callType, caleePersonalCode) => {
         caleePersonalCode
     };
     wss.sendPreOffer(data);
-}
+};
 
 export const handlePreOffer = (data) => {
     console.log('pre offer came webRTC handler');
     console.log(data);
-
 };
