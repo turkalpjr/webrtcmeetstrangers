@@ -141,7 +141,7 @@ export const handlePreOfferAnswer = (data) => {
     ui.showCallElements(connectedUserDetails.callType);
     createPeerConnection();
     //send webrtc offer
-     sendWebRTCOffer();
+    sendWebRTCOffer();
   }
 };
 
@@ -155,9 +155,8 @@ const sendWebRTCOffer = async () => {
   });
 };
 
-export const handleWebRTCOffer = (data) => {
-  console.log('webRTC offer come');
-  console.log("data:-->" + data);
+export const handleWebRTCOffer = async (data) => {
+  await peerConnection.setRemoteDescription(data.offer);
 }
 
 
