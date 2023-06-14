@@ -57,7 +57,7 @@ const createPeerConnection = () => {
     const localStream = store.getState().localStream;
 
     for (const track of localStream.getTracks()) {
-      peerConnection.addTrack(track,localStream);
+      peerConnection.addTrack(track, localStream);
     }
   }
 };
@@ -139,6 +139,26 @@ export const handlePreOfferAnswer = (data) => {
   }
   if (preOfferAnswer === constants.preOfferAnswer.CALL_ACCEPTED) {
     ui.showCallElements(connectedUserDetails.callType);
+    createPeerConnection();
     //send webrtc offer
+    await sendWebRTCOffer();
   }
+};
+
+const sendWebRTCOffer = async () => {
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  wss.sendDataUsingWebRTCSignaling({
+    connectedUserSocketId: connectedUserDetails.socketId,
+    type: constants.webRTCSignaling.OFFER,
+    offer: offer
+  });
+};
+
+export const handleWebRTCOffer = (data) => {
+  console.log('webRTC offer come');
+  console.log("data:-->" + data);
 }
+
+
+
