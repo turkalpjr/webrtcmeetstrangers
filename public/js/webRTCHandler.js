@@ -27,15 +27,24 @@ export const getLocalPreview = () => {
   });
 };
 
+
+
+
 const createPeerConnection = () => {
   peerConnection = new RTCPeerConnection(configuration);
   peerConnection.onicecandidate = (event) => {
     console.log('getting ice candidates from stun server...');
     if (event.candidate) {
       // send our ice candidates to other peer
-
+      wss.sendDataUsingWebRTCSignaling({
+        connectedUserSocketId:connectedUserDetails.socketId,
+        type: constants.webRTCSignaling.ICE_CANDIDATE,
+        candidate: event.candidate
+      });
     }
-  }
+  };
+
+
   peerConnection.onconnectionstatechange = (event) => {
     if (peerConnection.connectionState === 'connected') {
       console.log('successfully connected with other peer...');
@@ -157,7 +166,26 @@ const sendWebRTCOffer = async () => {
 
 export const handleWebRTCOffer = async (data) => {
   await peerConnection.setRemoteDescription(data.offer);
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  wss.sendDataUsingWebRTCSignaling({
+    connectedUserSocketId: connectedUserDetails.socketId,
+    type: constants.webRTCSignaling.ANSWER,
+    answer
+  });
+};
+
+export const handleWebRTCAnswer = async (data) => {
+  console.log('handle webrtc answer');
+  await peerConnection.setRemoteDescription(data.answer);
 }
 
 
-
+export const handlewebRTCCandidate = async (data) => {
+  console.log("handling incoming webRTC candidates");
+  try {
+    await peerConnection.addIceCandidate(data.candidate)
+  } catch (err) {
+    console.log("error occured while trying to add received ice candidate---->"+err);
+  }
+}
