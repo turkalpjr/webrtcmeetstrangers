@@ -37,7 +37,7 @@ const createPeerConnection = () => {
     if (event.candidate) {
       // send our ice candidates to other peer
       wss.sendDataUsingWebRTCSignaling({
-        connectedUserSocketId:connectedUserDetails.socketId,
+        connectedUserSocketId: connectedUserDetails.socketId,
         type: constants.webRTCSignaling.ICE_CANDIDATE,
         candidate: event.candidate
       });
@@ -186,6 +186,58 @@ export const handlewebRTCCandidate = async (data) => {
   try {
     await peerConnection.addIceCandidate(data.candidate)
   } catch (err) {
-    console.log("error occured while trying to add received ice candidate---->"+err);
+    console.log("error occured while trying to add received ice candidate---->" + err);
   }
 }
+
+
+let screenSharingStream;
+
+export const switchBetweenCameraAndScreenSharing = async (screenSharingActive) => {
+  if (screenSharingActive) {
+    const localStream = store.getState().localStream;
+    const senders = peerConnection.getSenders();
+
+    const sender = senders.find((sender) => {
+      return (sender.track.kind === localStream.getVideoTracks()[0].kind);
+    });
+    if (sender) {
+      sender.replaceTrack(localStream.getVideoTracks()[0]);
+    }
+
+
+    //stop screen sharing stream
+
+    store.getState().screenSharingStream.getTracks().forEach((track) => track.stop());
+
+    store.setScreenSharingActive(!screenSharingActive);
+    ui.updateLocalVideo(localStream);
+
+
+  } else {
+    console.log('switching for screen sharing');
+    try {
+      screenSharingStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true
+      })
+      store.setScreenSharingStream(screenSharingStream);
+
+      //replace track which sender is sending
+      const senders = peerConnection.getSenders();
+
+      const sender = senders.find((sender) => {
+        return (sender.track.kind === screenSharingStream.getVideoTracks()[0].kind);
+      });
+      if (sender) {
+        sender.replaceTrack(screenSharingStream.getVideoTracks()[0]);
+      }
+
+      store.setScreenSharingActive(!screenSharingActive);
+
+      ui.updateLocalVideo(screenSharingStream);
+    } catch (err) {
+      console.error('error occured when trying to get screen sharing stream', err);
+    }
+  }
+}
+
