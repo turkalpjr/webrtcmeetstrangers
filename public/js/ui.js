@@ -141,7 +141,6 @@ export const updateMicButton = (micActive) => {
 const cameraOnImgSrc = './utils/images/camera.png';
 const cameraOffImgSrc = './utils/images/cameraOff.png';
 
-
 export const updateCameraButton = (cameraActive) => {
   const cameraButtonImage = document.getElementById('camera_button_image');
   cameraButtonImage.src = cameraActive ? cameraOffImgSrc : cameraOnImgSrc;
@@ -183,11 +182,43 @@ export const switchRecordingButtons = (switchForResumeButton = false) => {
   if (switchForResumeButton) {
     hideElement(pauseButton);
     showElement(resumeButton);
-  }else{
+  } else {
     hideElement(resumeButton);
     showElemenet(pauseButton);
   }
 };
+
+// ui after hanged up
+
+export const updateUIAfterHangUp = (callType) => {
+  enableDashboard();
+
+  //hide the call buttons
+
+  if (callType === constants.callType.VIDEO_PERSONAL_CODE || callType === constants.callType.VIDEO_STRANGER) {
+    const callButtons = document.getElementById('call_buttons');
+    hideElement(callButtons);
+  } else {
+    const chatCallButtons = document.getElementById('finish_chat_button_container');
+    hideElement(chatCallButtons);
+  }
+
+  const newMessageInput = document.getElementById('new_message');
+  hideElement(newMessageInput);
+  clearMessenger();
+  updateMicButton(false);
+  updateCameraButton(false);
+
+  ///hide remote video and show placeholder
+  const remoteVideo = document.getElementById('remote_video');
+  hideElement(remoteVideo);
+
+  const placeholder = document.getElementById('video_placeholder');
+  showElement(placeholder);
+
+  removeAllDialogs();
+};
+
 
 
 //ui helper functions
