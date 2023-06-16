@@ -22,6 +22,8 @@ const configuration = {
 export const getLocalPreview = () => {
   navigator.mediaDevices.getUserMedia(defaultConstraints).then((stream) => {
     ui.updateLocalVideo(stream);
+    ui.showVideoCallButtons()
+    store.setCallState(constants.callState.CALL_AVAILABLE);
     store.setLocalStream(stream);
   }).catch((err) => {
     console.log('error occured when trying to get an access to camera');
@@ -109,6 +111,7 @@ export const sendPreOffer = (callType, calleePersonalCode) => {
       calleePersonalCode,
     };
     ui.showCallingDialog(callingDialogRejectCallHandler);
+    store.setCallState(constants.callState.CALL_UNAVAILABLE);
     wss.sendPreOffer(data);
   }
 };
@@ -121,6 +124,10 @@ export const handlePreOffer = (data) => {
     callType,
   };
 
+  if (!checkCallPossibility()) {
+    return sendPreOfferAnswer(constants.preOfferAnswer.CALL_UNAVAIABLE);
+  }
+  store.setCallState(constants.callState.CALL_UNAVAILABLE);
   if (
     callType === constants.callType.CHAT_PERSONAL_CODE ||
     callType === constants.callType.VIDEO_PERSONAL_CODE
@@ -159,13 +166,16 @@ export const handlePreOfferAnswer = (data) => {
   ui.removeAllDialogs();
   if (preOfferAnswer === constants.preOfferAnswer.CALLEE_NOT_FOUND) {
     ui.showInfoDialog(preOfferAnswer);
+    setIncomingCallsAvailable();
     //show dialog that callee has not been found
   }
   if (preOfferAnswer === constants.preOfferAnswer.CALL_UNAVAIABLE) {
+    setIncomingCallsAvailable();
     ui.showInfoDialog(preOfferAnswer);
     ///show dialog that callee is not able to connect 
   }
   if (preOfferAnswer === constants.preOfferAnswer.CALL_REJECTED) {
+    setIncomingCallsAvailable();
     ui.showInfoDialog(preOfferAnswer);
     //show dialog that call is rejected by the calee
   }
@@ -291,8 +301,31 @@ const closePeerConnectionAndResetState = () => {
   if (connectedUserDetails.callType === constants.callType.VIDEO_PERSONAL_CODE || connectedUserDetails.callType === constants.callType.VIDEO_STRANGER) {
     store.getState().localStream.getVideoTracks()[0].enabled = true;
     store.getState().localStream.getAudioTracks()[0].enabled = true;
+  }
 
-    ui.updateUIAfterHangUp(connectedUserDetails.callType);
-    connectedUserDetails=null;
+  ui.updateUIAfterHangUp(connectedUserDetails.callType);
+  setIncomingCallsAvailable();
+  connectedUserDetails = null;
+}
+
+const checkCallPossibility = (callType) => {
+  const callState = store.getState().callState;
+
+  if (callState = constants.callState.CALL_AVAILABLE) {
+    return true;
+  }
+  if ((callType === constants.callType.VIDEO_PERSONAL_CODE || callType === constants.callType.VIDEO_STRANGER) && callState === constants.callState.CALL_AVAILABLE_ONLY_CHAT) {
+    return false;
+  }
+  return false;
+}
+
+
+const setIncomingCallsAvailable = () => {
+  const localStream = store.getState().localStream();
+  if (localStream) {
+    store.setCallState(constants.callState.CALL_AVAILABLE);
+  } else {
+    store.setCallState(constants.callState.CALL_AVAILABLE_ONLY_CHAT);
   }
 }
