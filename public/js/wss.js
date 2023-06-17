@@ -2,6 +2,7 @@ import * as store from "./store.js";
 import * as ui from "./ui.js";
 import * as webRTCHandler from "./webRTCHandler.js";
 import * as constants from './constants.js';
+import * as strangerUtils from './strangerUtils.js';
 let socketIO = null;
 
 export const registerSocketEvents = (socket) => {
@@ -39,7 +40,12 @@ export const registerSocketEvents = (socket) => {
       default:
         return;
     }
-  })
+  });
+
+  socket.on('stranger-socket-id', (data) => {
+    strangerUtils.connectWithStranger(data);
+  });
+
 };
 
 export const sendPreOffer = (data) => {
@@ -57,4 +63,13 @@ export const sendDataUsingWebRTCSignaling = (data) => {
 
 export const sendUserHangedUp = (data) => {
   socketIO.emit('user-hanged-up', data);
+}
+
+export const changeStrangerConnectionStatus = (data) => {
+  socketIO.emit('stranger-connection-status', data);
+}
+
+
+export const getStrangerSocketId = () => {
+  socketIO.emit('get-stranger-socket-id');
 }
