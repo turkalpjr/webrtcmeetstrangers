@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-
+const twilio= require('twilio');
 const PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -11,6 +11,18 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
+});
+
+app.get('/api/get-turn-credentials', (req, res) => {
+  const accountSid = 'AC5016ae42cb943b119b449196d63b054b';
+  const authToken = '5d52f3526056ec45da9c52891b49c31f';
+  const client = twilio(accountSid, authToken);
+
+  client.tokens.create().then((token) => res.send({ token })).catch(err => {
+    console.log("TWİLİO HATA-->" + err);
+    res.send({ message: 'failed to fetch TURN credentials', err });
+  });
+
 });
 
 let connectedPeers = [];
@@ -96,7 +108,7 @@ io.on("connection", (socket) => {
     if (filteredConnectedPeersStrangers.length > 0) {
       randomStrangerSocketId =
         filteredConnectedPeersStrangers[
-          Math.floor(Math.random() * filteredConnectedPeersStrangers.length)
+        Math.floor(Math.random() * filteredConnectedPeersStrangers.length)
         ];
     } else {
       randomStrangerSocketId = null;
