@@ -3,7 +3,6 @@ export const getIncomingCallDialog = (
   acceptCallHandler,
   rejectCallHandler
 ) => {
-  console.log("getting incoming call dialog");
   const dialog = document.createElement("div");
   dialog.classList.add("dialog_wrapper");
   const dialogContent = document.createElement("div");
@@ -46,12 +45,14 @@ export const getIncomingCallDialog = (
   dialogContent.appendChild(imageContainer);
   dialogContent.appendChild(buttonContainer);
 
-  acceptCallButton.addEventListener('click', () => {
+  acceptCallButton.addEventListener("click", () => {
     acceptCallHandler();
   });
-  rejectCallButton.addEventListener('click', () => {
+
+  rejectCallButton.addEventListener("click", () => {
     rejectCallHandler();
   });
+
   return dialog;
 };
 
@@ -89,7 +90,7 @@ export const getCallingDialog = (rejectCallHandler) => {
   dialogContent.appendChild(imageContainer);
   dialogContent.appendChild(buttonContainer);
 
-  hangUpCallButton.addEventListener('click', () => {
+  hangUpCallButton.addEventListener("click", () => {
     rejectCallHandler();
   });
 
@@ -114,10 +115,9 @@ export const getInfoDialog = (dialogTitle, dialogDescription) => {
   image.src = avatarImagePath;
   imageContainer.appendChild(image);
 
-  const description = document.createElement('p');
-  description.classList.add('dialog_description');
+  const description = document.createElement("p");
+  description.classList.add("dialog_description");
   description.innerHTML = dialogDescription;
-
 
   dialogContent.appendChild(title);
   dialogContent.appendChild(imageContainer);
@@ -127,23 +127,23 @@ export const getInfoDialog = (dialogTitle, dialogDescription) => {
 };
 
 export const getLeftMessage = (message) => {
-  const messageContainer = document.createElement('div');
-  messageContainer.classList.add('message_left_container');
-  const messageParagraph = document.createElement('p');
-  messageParagraph.classList.add('message_left_paragraph');
+  const messageContainer = document.createElement("div");
+  messageContainer.classList.add("message_left_container");
+  const messageParagraph = document.createElement("p");
+  messageParagraph.classList.add("message_left_paragraph");
   messageParagraph.innerHTML = message;
   messageContainer.appendChild(messageParagraph);
 
   return messageContainer;
-}
+};
 
 export const getRightMessage = (message) => {
-  const messageContainer = document.createElement('div');
-  messageContainer.classList.add('message_right_container');
-  const messageParagraph = document.createElement('p');
-  messageParagraph.classList.add('message_right_paragraph');
+  const messageContainer = document.createElement("div");
+  messageContainer.classList.add("message_right_container");
+  const messageParagraph = document.createElement("p");
+  messageParagraph.classList.add("message_right_paragraph");
   messageParagraph.innerHTML = message;
   messageContainer.appendChild(messageParagraph);
 
   return messageContainer;
-}
+};

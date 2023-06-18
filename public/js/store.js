@@ -1,6 +1,4 @@
-import * as constants from './constants.js';
-
-
+import * as constants from "./constants.js";
 
 let state = {
   socketId: null,
@@ -17,7 +15,6 @@ export const setSocketId = (socketId) => {
     ...state,
     socketId,
   };
-  console.log(state);
 };
 
 export const setLocalStream = (stream) => {
@@ -56,11 +53,11 @@ export const setRemoteStream = (stream) => {
 };
 
 export const setCallState = (callState) => {
-   state={
+  state = {
     ...state,
     callState,
-   }
-}
+  };
+};
 
 export const getState = () => {
   return state;
